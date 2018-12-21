@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.1.1.RELEASE'
+}
+
+group 'Java_Spring_Notes'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'io.spring.dependency-management'
+
+sourceCompatibility = '11.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // This dependency is found on compile classpath of this component and consumers.
+    compile 'com.google.guava:guava:23.0'
+
+    testCompile('org.junit.jupiter:junit-jupiter-api:5.3.2')
+    testCompile('org.junit.jupiter:junit-jupiter-params:5.3.2')
+    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.3.2')
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+}
