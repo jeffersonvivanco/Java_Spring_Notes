@@ -24,4 +24,9 @@ dependencies {
     testRuntime('org.junit.jupiter:junit-jupiter-engine:5.3.2')
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // https://mvnrepository.com/artifact/com.h2database/h2
+    testCompile group: 'com.h2database', name: 'h2', version: '1.4.197'
 }
