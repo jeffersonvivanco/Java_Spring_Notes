@@ -1,0 +1,18 @@
+version: "3"
+services:
+  web:
+    image: jeffersonvivanco/spring_demo_repo:spring_app
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 1020M
+      restart_policy:
+        condition: on-failure
+    ports:
+      - 8443:8443
+    networks:
+      - webnet
+networks:
+  webnet:

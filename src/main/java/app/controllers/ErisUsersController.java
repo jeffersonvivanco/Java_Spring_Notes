@@ -1,11 +1,11 @@
 package app.controllers;
 
-import app.model.ErisUser;
+import app.exceptions.ErisAppException;
+import app.models.ErisUser;
+import app.models.Status;
 import app.services.ErisUserService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -18,7 +18,18 @@ public class ErisUsersController {
     }
 
     @PostMapping("/sign-up")
-    public void signUp(@RequestBody ErisUser erisUser){
-        erisUserService.signUp(erisUser);
+    public Status signUp(@RequestBody ErisUser erisUser) throws ErisAppException {
+        return erisUserService.signUp(erisUser);
+    }
+
+
+    @GetMapping("/getUserInfo")
+    public ErisUser getUserInfo() throws ErisAppException {
+        return erisUserService.getUserInfo();
+    }
+
+    @PostMapping("/updateUserInfo")
+    public Status updateUserInfo(@RequestBody ErisUser erisUser) throws ErisAppException {
+        return erisUserService.updateUserDetails(erisUser);
     }
 }
