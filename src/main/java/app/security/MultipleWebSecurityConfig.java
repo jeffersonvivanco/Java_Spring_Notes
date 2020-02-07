@@ -41,8 +41,7 @@ public class MultipleWebSecurityConfig {
             http.cors().and().csrf().disable().antMatcher("/api/secure/**")
                     .authorizeRequests()
                     // request only for admin
-                    .antMatchers("/api/secure/tasks/saveTask").hasAuthority(RolesAndPrivileges.WRITE_PRIVILEGE.getValue())
-                    .anyRequest().authenticated()
+                    .anyRequest().hasAuthority(RolesAndPrivileges.WRITE_PRIVILEGE.getValue())
                     .and()
                     .exceptionHandling().accessDeniedHandler(new RestAccessDeniedHandler()).and()
                     .addFilter(new JWTAuthenticationFilter(authenticationManager()))

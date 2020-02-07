@@ -16,6 +16,6 @@ server:
     enabled: true
   port: 8443
   ssl:
-    key-store: classpath:keytore.jks
-    key-store-password: harvard
-    key-password: harvard
+    key-store: classpath:keystore.p12
+    key-store-password: changeit
+    key-alias: domain

@@ -164,6 +164,7 @@ responses through the actual DispatcherServlet
   
   
   
+  
 ## Spring Mail
 * Mail Server Properties
   1. `MailSender` interface: The top-level interface that provides basic functionality for sending simple emails
@@ -176,6 +177,7 @@ responses through the actual DispatcherServlet
   5. `MimeMessagePreparator` interface: provides a callback interface for the preparation of MIME messages
   6. `MimeMessageHelper` class: helper class for the creation of MIME messages. It offers support for images, typical mail
   attachments and text content in an HTML layout.
+  
   
   
   
@@ -196,3 +198,9 @@ can generate a large amount of motion from a small change.
     `management.endpoint.health.roles`
     * `always`: details are shown to all users
 * Application Information
+
+## Spring Exceptions
+
+A RESTful application can communicate the success or failure of an HTTP request by **returning the right status code in
+the response to the client**. Simply put, an appropriate status code can help the client to identify problems that might
+have occurred while the application was dealing with the request.

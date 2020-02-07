@@ -1,6 +1,5 @@
 package app.services;
 
-import app.models.Status;
 import app.models.Task;
 import app.models.entities.TaskEntity;
 import app.repositories.ErisTaskRepository;
@@ -10,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,20 +27,24 @@ public class ErisTaskService {
         this.authenticationFacade = authenticationFacade;
     }
 
-    public Status saveTask(Task task){
+    public Task saveTask(Task task){
         String userName = authenticationFacade.getAuthentication().getName();
         String taskName = task.getName();
-        logger.info("User {{}} adding task {{}}", userName, taskName);
+        if (taskName == null || taskName.isEmpty()) {
+            logger.error("{} provided no task name", userName);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No task name provided");
+        }
+        logger.info("User {} adding task {}", userName, taskName);
         task.setAddedBy(authenticationFacade.getAuthentication().getName());
         TaskEntity taskEntity = new TaskEntity();
         ObjectUtil.copyProperties(task, taskEntity);
         erisTaskRepository.save(taskEntity);
-        return new Status(HttpStatus.OK.value(), "Successfully saved task.");
+        return task;
     }
 
     public List<Task> getTasks(){
         String userName = authenticationFacade.getAuthentication().getName();
-        logger.info("Getting tasks for user {{}}", userName);
+        logger.info("Getting tasks for user {}", userName);
         List<Task> tasks = new ArrayList<>();
         List<TaskEntity> taskEntities = erisTaskRepository.findAllByAddedBy(authenticationFacade.getAuthentication().getName());
         if (!taskEntities.isEmpty()){

@@ -1,6 +1,5 @@
 package app.controllers;
 
-import app.models.Status;
 import app.models.Task;
 import app.services.ErisTaskService;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +16,12 @@ public class ErisTasksController {
     }
 
     @GetMapping("/getAllTasks")
-    List<Task> getTasks(){
+    public List<Task> getTasks(){
         return erisTaskService.getTasks();
     }
 
     @PostMapping("/saveTask")
-    public Status saveTask(@RequestBody Task task){
+    public Task saveTask(@RequestBody Task task){
         return erisTaskService.saveTask(task);
     }
 }

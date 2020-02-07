@@ -1,9 +1,7 @@
 package app.services;
 
-import app.exceptions.ErisAppException;
 import app.models.ErisUser;
 import app.models.entities.ErisUserEntity;
-import app.models.Status;
 import app.repositories.ErisUserRepository;
 import app.security.IAuthenticationFacade;
 import app.security.services.ErisUserSecurityService;
@@ -12,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -33,59 +32,73 @@ public class ErisUserService {
     /*
     Sign up
      */
-    public Status signUp(ErisUser erisUser) throws ErisAppException {
+    public ErisUser signUp(ErisUser erisUser) {
         validateSignUp(erisUser);
         ErisUserEntity userEntity = new ErisUserEntity();
         ObjectUtil.copyProperties(erisUser, userEntity);
         erisUserSecurityService.setupUser(userEntity);
         erisUserRepository.save(userEntity);
-        logger.info("User {{}} signed up successfully!", userEntity.getUsername());
-        return new Status(HttpStatus.OK.value(), String.format("User {%s} signed up successfully", erisUser.getUsername()));
+        logger.info("User {} signed up successfully!", userEntity.getUsername());
+        return this.getUserInfo();
     }
 
 
     /*
     Update user details
      */
-    public Status updateUserDetails(ErisUser erisUser) throws ErisAppException {
-        ErisUserEntity userEntity = erisUserRepository.findByUsername(authenticationFacade.getAuthentication().getName())
-                .orElseThrow(() -> new ErisAppException(String.format("User {%s} not found, update failed", authenticationFacade.getAuthentication().getName())));
+    public ErisUser updateUserDetails(ErisUser erisUser) {
+        ErisUserEntity userEntity = this.getUserEntity();
         // Updating certain fields only
         userEntity.setFullName(erisUser.getFullName());
         erisUserRepository.save(userEntity);
-        logger.info("User {{}} updated successfully", userEntity.getUsername());
-        return new Status(HttpStatus.OK.value(), String.format("User {%s} updated successfully", userEntity.getUsername()));
+        logger.info("User {} updated successfully", userEntity.getUsername());
+        return this.getUserInfo();
     }
 
     /*
     Retrieve user details
      */
-    public ErisUser getUserInfo() throws ErisAppException {
-        String userName = authenticationFacade.getAuthentication().getName();
-        ErisUserEntity userEntity = erisUserRepository.findByUsername(userName)
-                .orElseThrow(() -> new ErisAppException(String.format("Error fetching user data for user {%s}", userName)));
+    public ErisUser getUserInfo() {
+        ErisUserEntity userEntity = this.getUserEntity();
         // VERY IMPORTANT
         // setting certain values to null to not expose them
+        // todo: find better way to do this
         ErisUser erisUser = new ErisUser();
         ObjectUtil.copyProperties(userEntity, erisUser);
         erisUser.setPassword(null);
         return erisUser;
     }
 
+    private ErisUserEntity getUserEntity() {
+        String userName = authenticationFacade.getAuthentication().getName();
+        Optional<ErisUserEntity> isThereUser= erisUserRepository.findByUsername(userName);
+        if (isThereUser.isEmpty()) {
+            logger.error("User {} not found", userName);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User does not exist");
+        }
+        return isThereUser.get();
+    }
+
     /*
     Validate data functions
      */
-    private void validateSignUp(ErisUser erisUser) throws ErisAppException {
+    private void validateSignUp(ErisUser erisUser) {
         // Check that username not null
         // also that they are all at least 4 chars long
         // also that the username doesn't exist in db
-        String username = Optional.ofNullable(erisUser.getUsername())
-                .orElseThrow(() -> new ErisAppException("Username cannot be null"));
-        if (username.length() < 4)
-            throw new ErisAppException("Validation error while user was signing up, username has to be more than 4 characters");
-        Optional<ErisUserEntity> check = erisUserRepository.findByUsername(username);
-        if (check.isPresent() && check.get().getUsername().equals(username))
-            throw new ErisAppException(String.format("Validation error while user was signing up, username {%s} already exists.", username));
+        if (erisUser.getUsername() == null || erisUser.getUsername().isEmpty()) {
+            logger.error("username cannot be empty");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username cannot be empty");
+        }
+        if (erisUser.getUsername().length() < 4) {
+            logger.error("username is less than 4 characters");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username has to be more than 4 characters");
+        }
+        Optional<ErisUserEntity> check = erisUserRepository.findByUsername(erisUser.getUsername());
+        if (check.isPresent()) {
+            logger.error("username {} already exists", erisUser.getUsername());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username already exists");
+        }
     }
 }
 

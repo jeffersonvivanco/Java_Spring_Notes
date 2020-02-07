@@ -1,6 +1,5 @@
 package app.security;
 
-import app.models.Status;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,12 +20,11 @@ public class RestAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
         String username = request.getUserPrincipal().getName();
-        Status status = new Status(HttpStatus.FORBIDDEN.value(), "Access is Denied");
-        logger.error("User {{}} received 403 FORBIDDEN while attempting to access endpoint {{}}", username, request.getServletPath());
+        logger.error("User {} received 403 FORBIDDEN while attempting to access endpoint {}", username, request.getServletPath());
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType("application/json");
         OutputStream output = response.getOutputStream();
-        objectMapper.writeValue(output, status);
+        objectMapper.writeValue(output, "Access denied!");
         output.flush();
     }
 }
