@@ -1,5 +1,6 @@
 package app.services;
 
+import app.exceptions.ErisAppException;
 import app.models.ErisUser;
 import app.models.entities.ErisUserEntity;
 import app.repositories.ErisUserRepository;
@@ -21,7 +22,7 @@ public class ErisUserService {
     private final ErisUserSecurityService erisUserSecurityService;
     private final IAuthenticationFacade authenticationFacade;
 
-    private static Logger logger = LoggerFactory.getLogger(ErisTaskService.class);
+    private static Logger logger = LoggerFactory.getLogger(ErisUserService.class);
 
     public ErisUserService(ErisUserRepository erisUserRepository, ErisUserSecurityService erisUserSecurityService, IAuthenticationFacade authenticationFacade) {
         this.erisUserRepository = erisUserRepository;
@@ -33,15 +34,28 @@ public class ErisUserService {
     Sign up
      */
     public ErisUser signUp(ErisUser erisUser) {
-        validateSignUp(erisUser);
+        try {
+            validateSignUp(erisUser);
+        } catch (ErisAppException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
         ErisUserEntity userEntity = new ErisUserEntity();
         ObjectUtil.copyProperties(erisUser, userEntity);
         erisUserSecurityService.setupUser(userEntity);
         erisUserRepository.save(userEntity);
         logger.info("User {} signed up successfully!", userEntity.getUsername());
-        return this.getUserInfo();
+        return erisUser;
     }
 
+    public ErisUser signUpAdmin(ErisUser erisUser) throws ErisAppException {
+        validateSignUp(erisUser);
+        ErisUserEntity userEntity = new ErisUserEntity();
+        ObjectUtil.copyProperties(erisUser, userEntity);
+        erisUserSecurityService.setupAdmin(userEntity);
+        erisUserRepository.save(userEntity);
+        logger.info("User {} signed up successfully as admin!", userEntity.getUsername());
+        return erisUser;
+    }
 
     /*
     Update user details
@@ -52,7 +66,7 @@ public class ErisUserService {
         userEntity.setFullName(erisUser.getFullName());
         erisUserRepository.save(userEntity);
         logger.info("User {} updated successfully", userEntity.getUsername());
-        return this.getUserInfo();
+        return getUserInfo();
     }
 
     /*
@@ -60,12 +74,8 @@ public class ErisUserService {
      */
     public ErisUser getUserInfo() {
         ErisUserEntity userEntity = this.getUserEntity();
-        // VERY IMPORTANT
-        // setting certain values to null to not expose them
-        // todo: find better way to do this
         ErisUser erisUser = new ErisUser();
         ObjectUtil.copyProperties(userEntity, erisUser);
-        erisUser.setPassword(null);
         return erisUser;
     }
 
@@ -82,22 +92,23 @@ public class ErisUserService {
     /*
     Validate data functions
      */
-    private void validateSignUp(ErisUser erisUser) {
+    private void validateSignUp(ErisUser erisUser) throws ErisAppException {
         // Check that username not null
         // also that they are all at least 4 chars long
         // also that the username doesn't exist in db
         if (erisUser.getUsername() == null || erisUser.getUsername().isEmpty()) {
             logger.error("username cannot be empty");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username cannot be empty");
+            throw new ErisAppException("username cannot be empty");
         }
         if (erisUser.getUsername().length() < 4) {
             logger.error("username is less than 4 characters");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username has to be more than 4 characters");
+            throw new ErisAppException("username has to be more than 4 characters");
         }
         Optional<ErisUserEntity> check = erisUserRepository.findByUsername(erisUser.getUsername());
+        // check if user exists, if it does, maybe admin, check if questions match
         if (check.isPresent()) {
             logger.error("username {} already exists", erisUser.getUsername());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username already exists");
+            throw new ErisAppException("username already exists");
         }
     }
 }

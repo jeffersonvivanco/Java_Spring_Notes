@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/secure/tasks")
+@RequestMapping("/api/auth/user/task")
 public class ErisTasksController {
 
     private final ErisTaskService erisTaskService;
@@ -18,10 +18,5 @@ public class ErisTasksController {
     @GetMapping("/getAllTasks")
     public List<Task> getTasks(){
         return erisTaskService.getTasks();
-    }
-
-    @PostMapping("/saveTask")
-    public Task saveTask(@RequestBody Task task){
-        return erisTaskService.saveTask(task);
     }
 }

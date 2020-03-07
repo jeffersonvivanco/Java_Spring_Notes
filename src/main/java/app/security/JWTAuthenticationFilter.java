@@ -59,10 +59,10 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                     )
             );
         } catch (AuthenticationException e){
-            loggerz.error("Authentication error: {{}}", e.getMessage());
+            loggerz.error("Authentication error: {}", e.getMessage());
             throw e;
         } catch (IOException e2){
-            loggerz.error("Authentication error (IOException): {{}}", e2.getMessage());
+            loggerz.error("Authentication error (IOException): {}", e2.getMessage());
             throw new ResponseStatusException(HttpStatus.CONFLICT, "authentication error");
         }
     }
@@ -78,7 +78,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withClaim(AUTHORITIES.getValue(), authorities)
                 .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME.getLongValue()))
                 .sign(Algorithm.HMAC512(SecurityConstants.SECRET.getValue().getBytes()));
-        loggerz.info("User {{}} successfully logged in!", ((User) authResult.getPrincipal()).getUsername());
+        loggerz.info("User {} successfully logged in!", ((User) authResult.getPrincipal()).getUsername());
         response.addHeader(SecurityConstants.HEADER_STRING.getValue(), SecurityConstants.TOKEN_PREFIX.getValue() + token);
     }
 

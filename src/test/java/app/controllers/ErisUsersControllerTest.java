@@ -14,21 +14,18 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringJUnitConfig
 class ErisUsersControllerTest {
     private MockMvc mockMvc;
     private ObjectMapper objectMapper = new ObjectMapper();
-    private final String securePrefix = "/api/secure/users";
-    private final String prefix = "/api/users";
+    private final String usersApiPrefix = "/api/auth/user";
     private ErisUser erisUser;
 
     @TestConfiguration
@@ -40,29 +37,36 @@ class ErisUsersControllerTest {
             return new ErisUsersController(erisUserService);
         }
         @Bean
-        ErisUsersSecureController erisUsersSecureController() {
-            return new ErisUsersSecureController(erisUserService);
+        ErisUsersAdminController erisUsersAdminController() {
+            return new ErisUsersAdminController(erisUserService);
+        }
+        @Bean
+        ErisSignUpController erisSignUpController() {
+            return new ErisSignUpController(erisUserService);
         }
     }
 
     @Autowired
     ErisUsersController erisUsersController;
     @Autowired
-    ErisUsersSecureController erisUsersSecureController;
+    ErisUsersAdminController erisUsersAdminController;
+    @Autowired
+    ErisSignUpController erisSignUpController;
     @Autowired
     ErisUserService erisUserService;
 
     @BeforeEach
     void setUp() {
-        this.mockMvc = MockMvcBuilders.standaloneSetup(erisUsersController, erisUsersSecureController).build();
+        this.mockMvc = MockMvcBuilders.standaloneSetup(erisUsersController, erisUsersAdminController, erisSignUpController).build();
         erisUser = new ErisUser();
         erisUser.setUsername("test_user");
+        erisUser.setPassword("password");
     }
 
     @Test
     void signUp() throws Exception {
         when(erisUserService.signUp(any())).thenReturn(erisUser);
-        mockMvc.perform(post(prefix + "/sign-up").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/api/sign-up").contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(erisUser))).andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(erisUser)));
     }
@@ -70,15 +74,17 @@ class ErisUsersControllerTest {
     @Test
     void getUserInfo() throws Exception {
         when(erisUserService.getUserInfo()).thenReturn(erisUser);
-        mockMvc.perform(get(securePrefix + "/getUserInfo")).andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(erisUser)));
+        ErisUser erisUserResponse = new ErisUser();
+        erisUserResponse.setUsername("test_user");
+        mockMvc.perform(get(usersApiPrefix + "/getUserInfo")).andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(erisUserResponse)));
     }
 
     @Test
     void updateUserInfo() throws Exception {
         erisUser.setFullName("Test User");
         when(erisUserService.updateUserDetails(any())).thenReturn(erisUser);
-        mockMvc.perform(post(securePrefix +"/updateUserInfo").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post(usersApiPrefix +"/updateUserInfo").contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(erisUser))).andExpect(status().isOk());
     }
 }

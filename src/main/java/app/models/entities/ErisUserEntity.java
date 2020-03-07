@@ -71,4 +71,5 @@ public class ErisUserEntity {
     public void setRoles(Collection<Role> roles) {
         this.roles = roles;
     }
+
 }

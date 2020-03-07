@@ -2,7 +2,7 @@ package app.security.constants;
 
 public enum  RolesAndPrivileges {
     READ_PRIVILEGE("READ_PRIVILEGE"), WRITE_PRIVILEGE("WRITE_PRIVILEGE"),
-    ROLE_ADMIN("ROLE_ADMIN"), ROLE_USER("ROLE_USER"), AUTHORITIES("AUTHORITIES");
+    ROLE_ADMIN("ADMIN"), ROLE_USER("USER"), AUTHORITIES("AUTHORITIES");
 
     private String value;
 

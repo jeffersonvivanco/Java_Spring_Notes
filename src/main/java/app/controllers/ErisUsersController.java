@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/auth/user")
 public class ErisUsersController {
 
     private final ErisUserService erisUserService;
@@ -15,8 +15,13 @@ public class ErisUsersController {
         this.erisUserService = erisUserService;
     }
 
-    @PostMapping("/sign-up")
-    public ErisUser signUp(@RequestBody ErisUser erisUser) {
-        return erisUserService.signUp(erisUser);
+    @GetMapping("/getUserInfo")
+    public ErisUser getUserInfo() {
+        return erisUserService.getUserInfo();
+    }
+
+    @PostMapping("/updateUserInfo")
+    public ErisUser updateUserInfo(@RequestBody ErisUser erisUser) {
+        return erisUserService.updateUserDetails(erisUser);
     }
 }

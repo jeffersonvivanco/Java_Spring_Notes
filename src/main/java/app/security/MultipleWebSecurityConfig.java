@@ -22,12 +22,12 @@ public class MultipleWebSecurityConfig {
     // Authenticate some endpoints, most strict
     @Configuration
     @Order(1)
-    public static class WebSecurity1 extends WebSecurityConfigurerAdapter {
+    public static class RoleWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         private final UserDetailsServiceImpl userDetailsService;
         private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-        public WebSecurity1(UserDetailsServiceImpl userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+        public RoleWebSecurityConfig(UserDetailsServiceImpl userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
             this.userDetailsService = userDetailsService;
             this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         }
@@ -38,10 +38,11 @@ public class MultipleWebSecurityConfig {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
 
-            http.cors().and().csrf().disable().antMatcher("/api/secure/**")
+            http.cors().and().csrf().disable().antMatcher("/api/auth/**")
                     .authorizeRequests()
                     // request only for admin
-                    .anyRequest().hasAuthority(RolesAndPrivileges.WRITE_PRIVILEGE.getValue())
+                    .antMatchers("/api/auth/admin/**").hasAuthority(RolesAndPrivileges.WRITE_PRIVILEGE.getValue())
+                    .antMatchers("/api/auth/user/**").hasAuthority(RolesAndPrivileges.READ_PRIVILEGE.getValue())
                     .and()
                     .exceptionHandling().accessDeniedHandler(new RestAccessDeniedHandler()).and()
                     .addFilter(new JWTAuthenticationFilter(authenticationManager()))
@@ -63,13 +64,16 @@ public class MultipleWebSecurityConfig {
     // make add filter for login endpoint /login
     @Configuration
     @Order(2)
-    public static class WebSecurity2 extends WebSecurityConfigurerAdapter {
+    public static class OtherWebSecurity extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.cors().and().csrf().disable().antMatcher("/login")
-                    .authorizeRequests().anyRequest().authenticated()
-                    .and().addFilter(new JWTAuthenticationFilter(authenticationManager()))
+            http.cors().and().csrf().disable()
+                    .authorizeRequests().antMatchers("/login").authenticated()
+                    .and()
+                    .addFilter(new JWTAuthenticationFilter(authenticationManager()))
                     .addFilter(new JWTAuthorizationFilter(authenticationManager()))
+                    .authorizeRequests().antMatchers("/api/sign-up").permitAll()
+                    .and()
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         }
     }

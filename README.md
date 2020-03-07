@@ -165,6 +165,7 @@ responses through the actual DispatcherServlet
   
   
   
+  
 ## Spring Mail
 * Mail Server Properties
   1. `MailSender` interface: The top-level interface that provides basic functionality for sending simple emails
@@ -177,6 +178,7 @@ responses through the actual DispatcherServlet
   5. `MimeMessagePreparator` interface: provides a callback interface for the preparation of MIME messages
   6. `MimeMessageHelper` class: helper class for the creation of MIME messages. It offers support for images, typical mail
   attachments and text content in an HTML layout.
+  
   
   
   

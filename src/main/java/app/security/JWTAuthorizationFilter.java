@@ -43,7 +43,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         try {
             authenticationToken = getAuthenticationToken(request);
         } catch (JWTVerificationException e){
-            loggerz.error("Invalid token error when accessing endpoint {{}}", request.getServletPath());
+            loggerz.error("Invalid token error when accessing endpoint {}", request.getServletPath());
         }
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         chain.doFilter(request, response);
