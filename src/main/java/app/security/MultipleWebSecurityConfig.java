@@ -3,6 +3,9 @@ package app.security;
 import app.security.constants.RolesAndPrivileges;
 import app.security.constants.SecurityConstants;
 import app.security.services.UserDetailsServiceImpl;
+import org.apache.catalina.connector.Connector;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -48,7 +51,8 @@ public class MultipleWebSecurityConfig {
                     .addFilter(new JWTAuthenticationFilter(authenticationManager()))
                     .addFilter(new JWTAuthorizationFilter(authenticationManager()))
                     // this disables session creation on spring security
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .and().requiresChannel().anyRequest().requiresSecure();
         }
 
         /*
@@ -74,7 +78,8 @@ public class MultipleWebSecurityConfig {
                     .addFilter(new JWTAuthorizationFilter(authenticationManager()))
                     .authorizeRequests().antMatchers("/api/sign-up").permitAll()
                     .and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .and().requiresChannel().anyRequest().requiresSecure();
         }
     }
 
@@ -89,5 +94,28 @@ public class MultipleWebSecurityConfig {
         // we permit request from any source /**
         source.registerCorsConfiguration("/**", corsConfiguration.applyPermitDefaultValues());
         return source;
+    }
+
+    /*
+    Enable multiple connectors with Tomcat
+    * You can add an org.apache.catalina.connector.Connector to the TomcatServletWebServerFactory,
+      which can allow multiple connectors, including http and https connectors.
+    * Below we create an http connector on port 80 so this way if the app is accessed via http and port
+      8080, it will redirect it to https port 8443 and specified in the security config above
+     */
+    @Bean
+    ServletWebServerFactory servletWebServerFactory() {
+        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
+        tomcat.addAdditionalTomcatConnectors(createRedirectConnector());
+        return tomcat;
+    }
+
+    private Connector createRedirectConnector() {
+        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+        connector.setScheme("http");
+        connector.setPort(8080);
+        connector.setSecure(false);
+        connector.setRedirectPort(8443);
+        return connector;
     }
 }
