@@ -3,6 +3,86 @@ Some notes about Java Spring
 
 ## Planet Eris
 
+## Secure Software Development Principles
+Some of the earliest principles were proposed by Salzer in 1974. These 8 principles apply today as well.
+
+### Economy of Mechanism
+This is a widely known principle that applies to all aspects of a system, and software design and is particularly relevant
+to security. Security mechanisms should be small and simple so that they can be easily implemented and verified. An example
+is Security Kernel.
+
+Complex designs increase the likelihood that errors will be made in their implementation, configuration, and use. Additionally,
+the effort required to achieve an appropriate level of assurance increases dramatically, as security mechanisms become more
+complex. As a result, it is generally more cost effective to spend more effort in the design of the system to achieve a simple
+solution to the problem.
+
+### Fail-Safe Defaults
+Basing access decisions on permission rather than exclusion means that, by default, the access is denied and the protection
+scheme identifies conditions under which access is permitted. If the security mechanism fails to grant access, this situation
+can be easily detected and corrected. However, a failure to block access may fail by allowing access - which may go unnoticed
+in normal use. Black listing and While listing data sensitization techniques fall under this category.
+
+**Complete Mediation**: Every access to every object must be checked for authority. The figure below illustrates the concept:
+
+![Complete Mediation](./assets/completeMediation.png "Complete Mediation")
+
+The principle requires that access to every object must be checked for authority. It also requires that the source of every
+request is positively identified and authorized to access a resource. Whenever a subject attempts to read an object, the OS
+should mediate the action.
+
+First, it determines if the subject is allowed to read the object. If so, it provides the resources for the read to occur.
+If the subject tries to read the object again, the system should check that the subject is still allowed to read the object.
+Most systems would not make the second check. They would cache the results of the first check and base the second access on
+the cached results.
+
+### Open Design
+A software design is not secured by hiding it from potential attackers or obscurity of code. The design should not be a
+secret. Encryption systems and access control mechanisms should be able to stand the open review and still be secure. We
+can achieve this by decoupling of the protection mechanism from protection keys or passwords.
+
+This approach brings the added advantage of permitting a thorough examination of the mechanism without concern that reviewers
+can compromise the safeguards. Implementing an open design also allows users to verify that the protection scheme is adequate
+for a particular application.
+
+### Separation of Privilege
+Where possible, a protection mechanism that requires two keys to unlock it is more robust and flexible than one that allows
+access to the presenter of only a single key. Separation of privilege eliminates a single point of failure by requiring more
+than 1 condition to grant permissions. A widely popular example is *"Two Factor Authentication"* which is based on
+*"something you have"* and *"something you know"*.
+
+### Least Privilege
+Every program and every user of the system should operate using the least set of privileges necessary to complete the job.
+This approach reduces the opportunities an attacker has to execute arbitrary code with elevated privileges. We can implement
+this principle in the following ways:
+* Grant each system, subsystem, and component the fewest privileges with which it can operate.
+* Acquire and discard privileges in such a way that at any given point, the system only has the privileges it needs for the
+  task in which it is engaged.
+* Discard the privilege to change privileges if no further changes are required.
+* Design programs to use privileges early, ideally, before interacting with a potential adversary (e.g a user), and then
+  discard them for the remainder of the program.
+  
+### Least Common Mechanism
+This principle, in some way, conflicts with overall trends in the distributed computing and dictates mechanisms common
+to more than 1 user should be minimized because these mechanisms represent potential security risks. If a rogue user manages
+to breach the security of one of these shared mechanisms, the attacker my be able to access or modify data from other users,
+possible introducing malicious code into processes that depend on the resource. In order to avoid these scenarios, consider
+designing your system so that the mechanism executes in the process space of your program and is not shared with other applications.
+
+#### Psychological Acceptability
+It is essential that the human interface be designed for ease of use, so that users routinely and automatically apply the
+protection mechanisms correctly. The modern term for this principle is "usability". Usability is also a for of security because
+user errors can often lead to security breaches--an example would be setting or changing access controls. Many of the
+vulnerabilities in the US CERT Vulnerabilities Database can be attributed to usability problems. Other common usability issues
+at the root cause of vulnerabilities cataloged in the database include:
+* The program is hard to configure safely or is easy to misconfigure
+* Installation of procedure creates vulnerability in other programs
+* Configuration problems
+* Confusing error and confirmation messages
+
+Usability problems in the documentation can also lead to real-world vulnerabilities including insecure examples or insecure
+descriptions. Overall, there are many good reasons to develop usable systems and perform usability testing and security
+happens to be one of these reasons.
+
 ## Spring Security
 
 ### Retrieve user information
@@ -166,6 +246,7 @@ responses through the actual DispatcherServlet
   
   
   
+  
 ## Spring Mail
 * Mail Server Properties
   1. `MailSender` interface: The top-level interface that provides basic functionality for sending simple emails
@@ -178,6 +259,7 @@ responses through the actual DispatcherServlet
   5. `MimeMessagePreparator` interface: provides a callback interface for the preparation of MIME messages
   6. `MimeMessageHelper` class: helper class for the creation of MIME messages. It offers support for images, typical mail
   attachments and text content in an HTML layout.
+  
   
   
   
