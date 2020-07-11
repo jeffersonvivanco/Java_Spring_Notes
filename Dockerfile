@@ -9,7 +9,7 @@ WORKDIR /javaspringnotes
 
 COPY build/libs/javaspringnotes-1.0-SNAPSHOT.jar app.jar
 
-EXPOSE 8443
+EXPOSE 443 80
 
 # setting active spring profile
 ENV spring_profiles_active=prod
