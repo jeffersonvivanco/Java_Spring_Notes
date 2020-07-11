@@ -19,3 +19,8 @@ server:
     key-store: classpath:keystore.p12
     key-store-password: changeit
     key-alias: domain
+
+---
+# configurations here will only be when it's running in prod
+spring:
+  profiles: prod

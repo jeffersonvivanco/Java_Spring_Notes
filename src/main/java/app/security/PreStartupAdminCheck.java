@@ -25,7 +25,7 @@ import static app.security.constants.RolesAndPrivileges.ROLE_ADMIN;
 
 @Configuration
 @Order(2)
-@Profile("!test")
+@Profile("dev")
 public class PreStartupAdminCheck implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final ErisUserService erisUserService;
