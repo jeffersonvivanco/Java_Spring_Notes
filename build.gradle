@@ -1,6 +1,7 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.3.1.RELEASE'
+    id 'org.springframework.boot' version '2.3.3.RELEASE'
+    id 'application'
 }
 
 group 'Java_Spring_Notes'
@@ -13,10 +14,10 @@ apply plugin: 'io.spring.dependency-management'
 // customizing version
 //ext['junit-jupiter.version'] = '5.4.0'
 
-
 clean {
-    delete "out"
-    delete "build"
+    delete 'out'
+    delete 'build'
+    delete '.gradle'
 }
 
 repositories {
@@ -42,7 +43,7 @@ dependencies {
         exclude group: 'org.junit.vintage'
         exclude group: 'org.junit.jupiter'
     }
-    testCompile group: 'org.springframework.security', name: 'spring-security-test', version: '5.3.3.RELEASE'
+    testCompile group: 'org.springframework.security', name: 'spring-security-test', version: '5.3.4.RELEASE'
     compile group: 'com.h2database', name: 'h2', version: '1.4.200'
     // https://mvnrepository.com/artifact/com.auth0/java-jwt
     compile group: 'com.auth0', name: 'java-jwt', version: '3.10.3'
